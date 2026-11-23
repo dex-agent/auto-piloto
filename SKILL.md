@@ -15,17 +15,33 @@ ferramenta é o CLI `bin/DriveAutoTeste.exe` 1.7, **incluído nesta skill**
 (compilado com Delphi 13, dcc32 `-Q -B`); esta skill domina COMO usar e COMO
 criar workflows. Referência completa: `docs/USAGE.md` (exemplos ilustrativos). Exemplos prontos: `examples/*.wh`.
 
-## Instalação
+## Instalação (Windows)
 
-```bash
-git clone https://github.com/dex-agent/auto-piloto ~/.agents/skills/auto-piloto
+No Prompt de Comando (`cmd`), uma linha de cada vez:
+
+```bat
+git clone https://github.com/dex-agent/auto-piloto "%USERPROFILE%\.agents\skills\auto-piloto"
+"%USERPROFILE%\.agents\skills\auto-piloto\bin\DriveAutoTeste.exe" --json schema
 ```
 
-A raiz do repositório é a skill; `bin/` vai junto. Teste:
+No PowerShell, troque `%USERPROFILE%` por `$HOME`. `~` e barra `/` não
+funcionam no Prompt de Comando. Se a pasta já existir e **não** for deste
+repositório (`git -C "<pasta>" remote get-url origin` imprime outra URL),
+clone em `"%USERPROFILE%\auto-piloto"` e **não apague** a pasta existente.
+Passo a passo completo: `README.md`, seção "Instalação".
 
-```bash
-~/.agents/skills/auto-piloto/bin/DriveAutoTeste.exe --json schema
+## Como chamar o CLI
+
+Os caminhos `bin\DriveAutoTeste.exe` e `examples\` são **relativos à pasta
+desta skill**. Chame pelo caminho completo ou entre na pasta antes:
+
+```bat
+cd /d "%USERPROFILE%\.agents\skills\auto-piloto"
+bin\DriveAutoTeste.exe --json schema
+bin\DriveAutoTeste.exe play --file examples\key-notepad.wh
 ```
+
+Nos exemplos abaixo, `DriveAutoTeste` significa esse caminho.
 
 ## Regra de ouro (origem)
 

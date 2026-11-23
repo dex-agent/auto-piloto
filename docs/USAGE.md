@@ -9,7 +9,18 @@ CLI de automação de UI Win32 por handles: enumera janelas e controles
 > e nomes de janela são inventados. Rode os comandos na sua máquina para ver
 > os valores reais.
 
-Versão do binário neste pacote: **1.7** (`bin/DriveAutoTeste.exe`).
+Versão do binário neste pacote: **1.7** (`bin\DriveAutoTeste.exe`).
+
+> **Windows:** os exemplos escrevem `./DriveAutoTeste.exe` (notação de shell
+> Unix). No Prompt de Comando, entre na pasta instalada e use a barra
+> invertida:
+>
+> ```bat
+> cd /d "%USERPROFILE%\.agents\skills\auto-piloto"
+> bin\DriveAutoTeste.exe <comando> [flags>
+> ```
+>
+> Instalação: seção "Instalação" do `README.md`.
 
 ## 1. Ajuda e schema
 
@@ -207,9 +218,10 @@ Workflow = arquivo JSON `{ "name", "prompt", "vars"?, "params"?, "steps": [ { "d
   posicionais sobrescrevem.
 - Um arquivo por regressão, zero código novo.
 
-```bash
-./DriveAutoTeste.exe play --file examples/key-notepad.wh
-./DriveAutoTeste.exe play --file examples/shot-notepad.wh --var out=caminho/shot.png
+```bat
+cd /d "%USERPROFILE%\.agents\skills\auto-piloto"
+bin\DriveAutoTeste.exe play --file examples\key-notepad.wh
+bin\DriveAutoTeste.exe play --file examples\shot-notepad.wh --var out=caminho\shot.png
 ```
 
 ### Steps
@@ -264,9 +276,3 @@ Workflow = arquivo JSON `{ "name", "prompt", "vars"?, "params"?, "steps": [ { "d
 | 0 | sucesso do comando; `help`/`schema`; `find` mesmo com 0 itens; workflow PASS |
 | 1 | falha do comando (run/wait/click/text/settext/clear/key/mouse/paste/shot/close) — inclui **hwnd inexistente** (`hwnd inexistente: N`) e tecla inválida (nomeia o token) — ou workflow FAIL |
 | 2 | nenhum argumento (modo humano), **comando desconhecido** (em `--json`: 1 linha `ok:false`), **flag desconhecida** (`flag desconhecida: --x`) ou **posicional ilegal** (sem `--file`, workflow sem `params`, posicionais demais) |
-
-## 7. Quando NÃO usar
-
-UI WebView/Electron/Chrome sem HWND por controle (a página inteira é UM
-HWND — use automação de browser/CDP), testes unitários Delphi, diálogo
-pontual de abrir arquivo. **CDP pra página, handles pra janela.**
