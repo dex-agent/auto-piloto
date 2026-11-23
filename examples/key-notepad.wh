@@ -1,0 +1,49 @@
+{
+ "name": "key-notepad",
+ "vars": {
+  "exe": "C:/Windows/System32/notepad.exe"
+ },
+ "desc": "Regressao da capacidade key no player: digita 1,2, volta 2 posicoes com setas LEFT e insere X — o assert X12 so passa se OnKeyDown mover o cursor de verdade (sem setas o resultado seria 12X). Depois backspace apaga o X e a linha final confirma o cursor.",
+ "prompt": "MISSAO: regressao da digitacao por eventos de teclado (setas movem o cursor DE VERDADE). INVOCACAO: play --file examples/key-notepad.wh (roda sem nenhum --var; opcional --var exe=<path> para outro editor com um campo de classe Edit). O workflow sobe o notepad, digita 1,2,left,left,X: o assert X12 so passa se OnKeyDown mover o cursor (sem setas o resultado seria 12X); depois backspace/home/enter. PROVA: WORKFLOW=PASS 7/7 (o texto X12 no Edit do notepad e o oracle). AVISOS: virgula e SEPARADOR de tokens, nunca tecla — tecla literal usa #VK (ex.: #188); a-z sai minusculo (char literal do token); ideal p/ provar teclado sintetico em qualquer app com campo de texto.",
+ "steps": [
+  {
+   "do": "run",
+   "exe": "${exe}",
+   "save": "pid"
+  },
+  {
+   "do": "sleep",
+   "ms": 800
+  },
+  {
+   "do": "key",
+   "pid": "${pid}",
+   "class": "Edit",
+   "keys": "1,2,left,left,X"
+  },
+  {
+   "do": "assert-text",
+   "pid": "${pid}",
+   "class": "Edit",
+   "contains": "X12",
+   "timeoutMs": 3000
+  },
+  {
+   "do": "key",
+   "pid": "${pid}",
+   "class": "Edit",
+   "keys": "bs,home,enter"
+  },
+  {
+   "do": "assert-text",
+   "pid": "${pid}",
+   "class": "Edit",
+   "contains": "\r\n12",
+   "timeoutMs": 3000
+  },
+  {
+   "do": "close",
+   "pid": "${pid}"
+  }
+ ]
+}

@@ -1,0 +1,51 @@
+{
+ "name": "shot-notepad",
+ "vars": {
+  "exe": "C:/Windows/System32/notepad.exe",
+  "out": "shot-notepad.png"
+ },
+ "desc": "Exemplo das capacidades settext + shot: sobe o notepad, escreve um texto no Edit, confere o texto e tira um print do campo com retangulo localizador amarelo na janela raiz.",
+ "prompt": "MISSAO: exemplo de settext + shot com localizador. INVOCACAO: play --file examples/shot-notepad.wh (opcional --var out=caminho.png). O workflow sobe o notepad, escreve 'exemplo auto-piloto' no Edit, faz assert-text do texto, tira o print do Edit com --locate (retangulo amarelo na janela raiz) e faz assert-file do PNG. PROVA: WORKFLOW=PASS e o PNG gerado (abra o arquivo: o retangulo amarelo marca o campo). AVISOS: shot de janela oculta pode sair preto; confira o artefato real, nao so o exit.",
+ "steps": [
+  {
+   "do": "run",
+   "exe": "${exe}",
+   "save": "pid"
+  },
+  {
+   "do": "sleep",
+   "ms": 800
+  },
+  {
+   "do": "settext",
+   "pid": "${pid}",
+   "class": "Edit",
+   "value": "exemplo auto-piloto"
+  },
+  {
+   "do": "assert-text",
+   "pid": "${pid}",
+   "class": "Edit",
+   "contains": "exemplo auto-piloto",
+   "timeoutMs": 3000
+  },
+  {
+   "do": "shot",
+   "pid": "${pid}",
+   "class": "Edit",
+   "out": "${out}",
+   "locate": true,
+   "color": "yellow",
+   "format": "png"
+  },
+  {
+   "do": "assert-file",
+   "path": "${out}",
+   "timeoutMs": 3000
+  },
+  {
+   "do": "close",
+   "pid": "${pid}"
+  }
+ ]
+}

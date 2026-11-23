@@ -1,0 +1,5 @@
+interface:
+  display_name: "Auto Piloto (DriveAutoTeste)"
+  short_description: "Automação de UI Win32 por handles (CLI DriveAutoTeste)"
+  default_prompt: |
+    Use $auto-piloto. Use o CLI DriveAutoTeste (bin/DriveAutoTeste.exe, dentro da pasta desta skill) para automatizar o teste da UI Win32 do projeto: 1) `schema` para ver comandos; 2) `find --hwnd 0` para listar janelas abertas e `find (--hwnd N | --pid N) --caption-contains S --vis all|visible|invisible` para localizar janelas/controles (saída com parentclass = classe do pai); 3) key/mouse/paste/shot para agir sem foco; 4) escreva um workflow .wh (steps run/wait/click/text/key/mouse/shot/assert-text/assert-file/close) e rode com `play --file ... --var exe=<path>`; prefira `--json` quando consumir a saída por script (caption acentuada = decodificar cp1252). Conteúdo DOM de browser/Electron fica com CDP (CDP pra página, handles pra janela). Nunca declare impossível automatizar UI Win32 antes de enumerar handles e enviar a mensagem.
