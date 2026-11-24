@@ -97,6 +97,7 @@ Regras de uso para agentes: [SKILL.md](SKILL.md).
 |---|---|
 | `examples/key-notepad.wh` | teclado por eventos (setas movem o cursor de verdade), asserts de texto |
 | `examples/shot-notepad.wh` | `settext` + print com retângulo localizador + assert de arquivo |
+| `examples/mouse-wheel-notepad.wh` | roda do mouse (1.7.5): escreve 40 linhas, print de antes, 5 entalhes para baixo, print de depois |
 
 Workflow = arquivo JSON com `name`, `prompt` (playbook) e `steps`; um arquivo
 por regressão, zero código novo.

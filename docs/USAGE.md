@@ -9,7 +9,7 @@ CLI de automação de UI Win32 por handles: enumera janelas e controles
 > e nomes de janela são inventados. Rode os comandos na sua máquina para ver
 > os valores reais.
 
-Versão do binário neste pacote: **1.7.4** (`bin\DriveAutoTeste.exe`).
+Versão do binário neste pacote: **1.7.5** (`bin\DriveAutoTeste.exe`).
 
 > **Windows:** os exemplos escrevem `./DriveAutoTeste.exe` (notação de shell
 > Unix). No Prompt de Comando, entre na pasta instalada e use a barra
@@ -29,7 +29,7 @@ lista estruturada de comandos e flags (1 linha parseável):
 
 ```text
 $ ./DriveAutoTeste.exe help
-DriveAutoTeste 1.7.4 — automacao de UI Win32 por handles
+DriveAutoTeste 1.7.5 — automacao de UI Win32 por handles
 uso: DriveAutoTeste [--json] <comando> [flags]
 comandos:
   run    --exe <path> [--dir <workdir>]           sobe o app e imprime pid
@@ -43,6 +43,11 @@ comandos:
   clear  --hwnd N                                limpa o campo (len=0)
   key    (--hwnd N | --pid N --caption S) --keys k1,k2,.. [--mode press|raw|down|up|posted|combo]
   mouse  (--hwnd N | --pid N --caption S) [--action move|down|up|left|right|dclick] [--x N --y N]
+                                                eventos de mouse no handle (default: left no centro)
+                                                [--action wheel --direction up|down|left|right --amount N]
+                                                [--action drag --to-x N --to-y N --from-x N --from-y N --button left|right]
+                                                x/y no client do alvo (ou da tela com --coords screen)
+                                                --dry-run mostra alvo e plano; --verify compara o print antes/depois
   paste  (--hwnd N | --pid N --caption S)       cola clipboard (WM_PASTE)
   close  --pid N                                 encerra o processo
   sleep  --ms N                                  pausa
@@ -205,6 +210,53 @@ $ ./DriveAutoTeste.exe mouse --pid 4242 --caption "OK" --action left
 mouse=hwnd=777888 x=40 y=12 action=left
 ```
 
+#### Roda e arrasto (1.7.5)
+
+`--action wheel --direction up|down|left|right [--amount N]` manda **uma
+mensagem por entalhe** (`WM_MOUSEWHEEL` na vertical, `WM_MOUSEHWHEEL` na
+horizontal), delta de ±120 e `lParam` em coordenadas de tela. `--action drag
+--to-x N --to-y N [--from-x N --from-y N] [--button left|right]` faz `down`, 8
+`WM_MOUSEMOVE` com o botão pressionado no `wParam` e `up`. Nenhum dos dois
+rouba foco; janela travada devolve erro nomeado em ~2 s em vez de prender o CLI.
+
+```text
+$ ./DriveAutoTeste.exe --json mouse --pid 4242 --class Edit --action wheel --direction down --amount 3
+{"ok":true,"cmd":"mouse","data":{"hwnd":777888,"x":300,"y":200,"action":"wheel","direction":"down","delta":-120,"messages":3,"screen":{"x":410,"y":260},"effect":{"verified":false,"method":"none"}}}
+
+$ ./DriveAutoTeste.exe mouse --pid 4242 --class Edit --action drag --from-x 8 --from-y 6 --to-x 400 --to-y 40
+mouse=hwnd=777888 x=300 y=200 action=drag passos=8
+```
+
+`--dry-run` resolve alvo, coordenadas e plano sem enviar nada. `--coords
+screen` lê `--x/--y` e os pares do drag em coordenadas de tela (o default é o
+client do alvo) — serve para o ponto tirado do `rect` do `find`:
+
+```text
+$ ./DriveAutoTeste.exe mouse --pid 4242 --class Edit --action wheel --direction down --amount 3 --dry-run
+mouse=DRY-RUN hwnd=777888 class=Edit x=300 y=200 action=wheel -> 3 x WM_MOUSEWHEEL, delta -120 cada, em (410,260) da tela
+```
+
+`--verify` compara o print do alvo antes e depois e diz no recibo se o efeito
+foi visto (`"effect":{"verified":true,"method":"shot-diff"}`). **Só vale com a
+janela aberta**: minimizada ou oculta o Windows não pinta, e o recibo declara
+`"verified":false` com `"error":"print antes: alvo minimizado ou oculto..."`
+em vez de dizer que nada mudou.
+
+Falha falada — exit **1** para valor inválido, exit **2** para flag fora do
+contrato:
+
+```text
+$ ./DriveAutoTeste.exe --json mouse --pid 4242 --class Edit --action drag --from-x 5
+{"ok":false,"cmd":"mouse","data":{"error":"par incompleto: --from-x e --from-y devem vir juntos"}}
+
+$ ./DriveAutoTeste.exe --json mouse --pid 4242 --class Edit --action wheel
+{"ok":false,"cmd":"mouse","data":{"error":"wheel exige --direction up|down|left|right"}}
+```
+
+No `.wh` as chaves são as flags sem os traços (`"action": "wheel"`,
+`"direction": "down"`, `"amount": "5"`). Exemplo pronto:
+`examples/mouse-wheel-notepad.wh`.
+
 ### `paste` — colar do clipboard (WM_PASTE)
 
 ```text
@@ -277,7 +329,7 @@ bin\DriveAutoTeste.exe play --file examples\shot-notepad.wh --var out=caminho\sh
 | `settext` | `hwnd` **ou** `pid`+`class`+`caption`+`timeoutMs`, `value` | timeout=5000 | `WM_SETTEXT` |
 | `text` | `hwnd` **ou** `pid`+`class`+`timeoutMs`, `save`, `out` | class=`TMemo`, timeout=5000 | lê texto; `save` publica em var `${k}`; `out` grava em arquivo |
 | `key` | `pid`/`hwnd`+`class`/`caption`+`timeoutMs`, `keys`\*, `mode` | timeout=5000, mode=`press` | sequência de teclas (WM_KEYDOWN/WM_CHAR/WM_KEYUP) |
-| `mouse` | `pid`/`hwnd`+localização, `x`, `y`, `action` | x/y=centro do handle, action=`left` | eventos de mouse (move/down/up/left/right/dclick) |
+| `mouse` | `pid`/`hwnd`+localização, `x`, `y`, `action`; no `wheel`: `direction`, `amount`; no `drag`: `from-x`, `from-y`, `to-x`, `to-y`, `button` | x/y=centro do handle, action=`left` | eventos de mouse (move/down/up/left/right/dclick/wheel/drag) |
 | `paste` | `pid`/`hwnd`+localização | — | cola o clipboard (WM_PASTE) |
 | `shot` | `pid`/`hwnd`+localização, `out`\*, `locate`, `color`, `format` | color=`yellow`, format=`png` | print do handle; `locate` = janela raiz + retângulo |
 | `assert-text` | `pid`, `class`, `contains`\*, `timeoutMs` | class=`TMemo`, timeout=10000 | repoll a cada 250 ms até o texto do controle conter `contains` |
@@ -317,5 +369,5 @@ bin\DriveAutoTeste.exe play --file examples\shot-notepad.wh --var out=caminho\sh
 | Código | Quando |
 |---|---|
 | 0 | sucesso do comando; `help`/`schema`; `find` mesmo com 0 itens; workflow PASS |
-| 1 | falha do comando (run/wait/click/text/settext/clear/key/mouse/paste/shot/close) — inclui **hwnd inexistente** (`hwnd inexistente: N`) e tecla inválida (nomeia o token) — ou workflow FAIL |
-| 2 | nenhum argumento (modo humano), **comando desconhecido** (em `--json`: 1 linha `ok:false`), **flag desconhecida** (`flag desconhecida: --x`) ou **posicional ilegal** (sem `--file`, workflow sem `params`, posicionais demais) |
+| 1 | falha do comando (run/wait/click/text/settext/clear/key/mouse/paste/shot/close) — inclui **hwnd inexistente** (`hwnd inexistente: N`), tecla inválida (nomeia o token) e valor inválido no `mouse` (`--direction`, `--amount`, `--button`, par incompleto) — ou workflow FAIL |
+| 2 | nenhum argumento (modo humano), **comando desconhecido** (em `--json`: 1 linha `ok:false`), **flag desconhecida** (`flag desconhecida: --x`), **flag fora do contrato da ação no `mouse`** (`wheel exige --direction`, `--direction exige --action wheel`) ou **posicional ilegal** (sem `--file`, workflow sem `params`, posicionais demais) |

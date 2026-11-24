@@ -1,0 +1,74 @@
+{
+ "name": "mouse-wheel-notepad",
+ "vars": {
+  "exe": "C:/Windows/System32/notepad.exe",
+  "antes": "wheel-antes.png",
+  "depois": "wheel-depois.png"
+ },
+ "desc": "Exemplo da roda do mouse (1.7.5): sobe o notepad, escreve 40 linhas no Edit, tira o print de antes, roda 5 entalhes para baixo, tira o print de depois e fecha. Os dois PNG mostram o efeito.",
+ "prompt": "MISSAO: exemplo da roda do mouse (wheel) num app que rola. INVOCACAO: play --file examples/mouse-wheel-notepad.wh (opcional --var antes=a.png --var depois=b.png). O workflow sobe o notepad, escreve 40 linhas no Edit, grava wheel-antes.png, manda 5 entalhes para baixo (5 mensagens WM_MOUSEWHEEL de -120), grava wheel-depois.png e fecha o notepad. PROVA: WORKFLOW=PASS e os dois PNG na pasta atual: o de depois mostra outras linhas. AVISOS: a roda nao rouba foco e vai por mensagem, sem mexer no cursor; linhas por entalhe seguem a configuracao do Windows; para arrastar, use mouse --action drag --to-x N --to-y N; alvo minimizado nao repinta, entao rode com a janela aberta. NAO EXECUTADO de ponta a ponta na maquina que gerou o pacote (abre janela): os passos settext, shot, wheel e assert-file foram rodados contra um notepad minimizado.",
+ "steps": [
+  {
+   "do": "run",
+   "exe": "${exe}",
+   "save": "pid"
+  },
+  {
+   "do": "sleep",
+   "ms": 800
+  },
+  {
+   "do": "settext",
+   "pid": "${pid}",
+   "class": "Edit",
+   "value": "linha 01 de exemplo\r\nlinha 02 de exemplo\r\nlinha 03 de exemplo\r\nlinha 04 de exemplo\r\nlinha 05 de exemplo\r\nlinha 06 de exemplo\r\nlinha 07 de exemplo\r\nlinha 08 de exemplo\r\nlinha 09 de exemplo\r\nlinha 10 de exemplo\r\nlinha 11 de exemplo\r\nlinha 12 de exemplo\r\nlinha 13 de exemplo\r\nlinha 14 de exemplo\r\nlinha 15 de exemplo\r\nlinha 16 de exemplo\r\nlinha 17 de exemplo\r\nlinha 18 de exemplo\r\nlinha 19 de exemplo\r\nlinha 20 de exemplo\r\nlinha 21 de exemplo\r\nlinha 22 de exemplo\r\nlinha 23 de exemplo\r\nlinha 24 de exemplo\r\nlinha 25 de exemplo\r\nlinha 26 de exemplo\r\nlinha 27 de exemplo\r\nlinha 28 de exemplo\r\nlinha 29 de exemplo\r\nlinha 30 de exemplo\r\nlinha 31 de exemplo\r\nlinha 32 de exemplo\r\nlinha 33 de exemplo\r\nlinha 34 de exemplo\r\nlinha 35 de exemplo\r\nlinha 36 de exemplo\r\nlinha 37 de exemplo\r\nlinha 38 de exemplo\r\nlinha 39 de exemplo\r\nlinha 40 de exemplo\r\n"
+  },
+  {
+   "do": "assert-text",
+   "pid": "${pid}",
+   "class": "Edit",
+   "contains": "linha 40",
+   "timeoutMs": 3000
+  },
+  {
+   "do": "shot",
+   "pid": "${pid}",
+   "class": "Edit",
+   "out": "${antes}",
+   "format": "png"
+  },
+  {
+   "do": "mouse",
+   "pid": "${pid}",
+   "class": "Edit",
+   "action": "wheel",
+   "direction": "down",
+   "amount": "5"
+  },
+  {
+   "do": "sleep",
+   "ms": 300
+  },
+  {
+   "do": "shot",
+   "pid": "${pid}",
+   "class": "Edit",
+   "out": "${depois}",
+   "format": "png"
+  },
+  {
+   "do": "assert-file",
+   "path": "${antes}",
+   "timeoutMs": 3000
+  },
+  {
+   "do": "assert-file",
+   "path": "${depois}",
+   "timeoutMs": 3000
+  },
+  {
+   "do": "close",
+   "pid": "${pid}"
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 ---
 name: auto-piloto
-description: "Owner do conhecimento de automação de UI Win32 por handles via CLI DriveAutoTeste 1.7.4 (bin/DriveAutoTeste.exe incluído nesta skill): localizar janelas e handles (find --hwnd 0 = todas as janelas abertas, busca por contém, filtro de visibilidade, parentclass), clicar (BM_CLICK), ler/escrever textos, teclado/mouse/paste/print por mensagem, atalhos com ativação opcional do alvo (key --mode combo --activate) e workflows .wh autocontidos (prompt + vars defaults + params posicionais + steps com asserts, incluindo assert-empty que prova envio) reutilizáveis — sem escrever driver novo por sistema. Regra de ouro: nunca declarar impossível automatizar UI Win32."
+description: "Owner do conhecimento de automação de UI Win32 por handles via CLI DriveAutoTeste 1.7.5 (bin/DriveAutoTeste.exe incluído nesta skill): localizar janelas e handles (find --hwnd 0 = todas as janelas abertas, busca por contém, filtro de visibilidade, parentclass, popups), clicar (BM_CLICK), ler/escrever textos, teclado/mouse/paste/print por mensagem (mouse com roda e arrasto, sem roubar foco), atalhos com ativação opcional do alvo (key --mode combo --activate) e workflows .wh autocontidos (prompt + vars defaults + params posicionais + steps com asserts, incluindo assert-empty que prova envio) reutilizáveis — sem escrever driver novo por sistema. Regra de ouro: nunca declarar impossível automatizar UI Win32."
 metadata:
   systemone: ""
 ---
@@ -11,7 +11,7 @@ Alias humano e de chamada: `$auto-piloto` / `Auto Piloto`. **Alias legado:**
 `drive-autoteste`.
 
 Skill **owner do conhecimento** de automação de UI Win32 por handles. A
-ferramenta é o CLI `bin/DriveAutoTeste.exe` 1.7.4, **incluído nesta skill**
+ferramenta é o CLI `bin/DriveAutoTeste.exe` 1.7.5, **incluído nesta skill**
 (compilado com Delphi 13, dcc32 `-Q -B`); esta skill domina COMO usar e COMO
 criar workflows. Referência completa: `docs/USAGE.md` (exemplos ilustrativos). Exemplos prontos: `examples/*.wh`.
 
@@ -67,6 +67,9 @@ DriveAutoTeste [--json] <comando> [flags]
                                                 --activate (1.7.2, so com combo): ativa o alvo (trava de
                                                 foreground do Windows) e restaura o foco ao fim; recibo focus
   mouse  (--hwnd N | --pid N --caption S) [--action move|down|up|left|right|dclick] [--x N --y N]
+                                                [--action wheel --direction up|down|left|right --amount N] (1.7.5: 1 mensagem por entalhe)
+                                                [--action drag --to-x N --to-y N --from-x N --from-y N --button left|right]
+                                                x/y no client do alvo (ou da tela com --coords screen); --dry-run, --verify
   paste  (--hwnd N | --pid N --caption S)       cola clipboard (WM_PASTE)
   close  --pid N                                 encerra o processo
   sleep  --ms N                                  pausa
@@ -115,7 +118,8 @@ hwnd; FAIL nomeia conteúdo; hwnd morto=FAIL sem falso verde)`**,
 `wait(pid,class,caption,timeoutMs)`, `click(hwnd|pid+caption)`,
 `settext(hwnd|pid+caption,value)`, `text(pid,class,save,out)`,
 `key(pid/hwnd+class/caption,keys,mode)`,
-`mouse(pid/hwnd+localização,x,y,action)`, `paste(pid/hwnd+localização)`,
+`mouse(pid/hwnd+localização,x,y,action; 1.7.5: wheel com direction/amount e drag
+com from-x/from-y/to-x/to-y/button)`, `paste(pid/hwnd+localização)`,
 `shot(pid/hwnd+localização,out,locate,color,format)`,
 `assert-text(pid,class,contains,timeoutMs)`, `assert-file(path,timeoutMs)`,
 `sleep(ms)`, `print(msg)`, `close(pid)`.
