@@ -9,7 +9,7 @@ CLI de automação de UI Win32 por handles: enumera janelas e controles
 > e nomes de janela são inventados. Rode os comandos na sua máquina para ver
 > os valores reais.
 
-Versão do binário neste pacote: **1.7** (`bin\DriveAutoTeste.exe`).
+Versão do binário neste pacote: **1.7.3** (`bin\DriveAutoTeste.exe`).
 
 > **Windows:** os exemplos escrevem `./DriveAutoTeste.exe` (notação de shell
 > Unix). No Prompt de Comando, entre na pasta instalada e use a barra
@@ -29,7 +29,7 @@ lista estruturada de comandos e flags (1 linha parseável):
 
 ```text
 $ ./DriveAutoTeste.exe help
-DriveAutoTeste 1.7 — automacao de UI Win32 por handles
+DriveAutoTeste 1.7.3 — automacao de UI Win32 por handles
 uso: DriveAutoTeste [--json] <comando> [flags]
 comandos:
   run    --exe <path> [--dir <workdir>]           sobe o app e imprime pid
@@ -181,6 +181,19 @@ flag, o comportamento e o recibo são os de 1.7 (`focus.activate:false`). Em
 workflow `.wh`, o passo `key` aceita `"activate": true`.
 
 `X12` (e não `12X`) mostra que as setas moveram o cursor de verdade.
+
+#### Vocabulario de teclas e atalhos (1.7.3)
+
+Tabela fixa: `a-z 0-9 f1..f24 #VK`, nomes (`enter esc tab space home end pgup
+pgdn ins del bs ctrl(^) alt shift win caps prtsc pause menu`), `numpad0-9` +
+`numpad_add/subtract/multiply/divide/decimal`, `oem_plus/minus/comma/period`
+e `oem_1..oem_7`. Token invalido lista os aceitos; `ctrl+alt+del` falha como
+reservada sem enviar nada.
+
+- `--sequence` (a virgula ja sequencia), `--repeat N`, `--delay-ms N`.
+- `--dry-run` resolve os tokens e imprime o plano sem enviar:
+  `plan: mode=combo steps=2 -> numpad0(96); oem_plus(187)`.
+- No `.wh`: `"shortcuts": {"salvar": "ctrl+s"}` e `"keys": "salvar"`.
 
 ### `mouse` — eventos de mouse no handle
 
