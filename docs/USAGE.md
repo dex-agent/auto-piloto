@@ -150,6 +150,36 @@ $ ./DriveAutoTeste.exe --json text --hwnd 111222
 {"ok":true,"cmd":"text","data":{"hwnd":111222,"text":"X12"}}
 ```
 
+#### `--activate` — ativar o alvo antes do combo (1.7.2)
+
+Quando o alvo está atrás de outra janela, em outro monitor ou numa sessão RDP,
+o combo era recusado pelo gate de foco. `--activate` (só com `--mode combo`)
+pede a ativação explícita: registra o foreground anterior, ativa o alvo,
+envia o combo e **restaura o foco anterior no fim**, inclusive quando falha.
+
+```text
+$ ./DriveAutoTeste.exe --json key --hwnd 111222 --keys ctrl+s --mode combo --activate
+{"ok":true,"cmd":"key","data":{"hwnd":111222,"keys":"ctrl+s","focus":{"mode":"combo",
+ "activate":true,"activated":true,"held":true,"restored":true,
+ "target":{"hwnd":111222,"pid":4242,"title":"Editor","iconic":false,"monitor":2,...},
+ "foreground":{"hwnd":777888,"pid":5150,"title":"Terminal","iconic":false,"monitor":1,...}}}}
+```
+
+O recibo diz o que aconteceu em vez de prometer: `activated` (o alvo chegou a
+primeiro plano), `held` (continuou na frente **até o fim do envio** — outro app
+pode roubar o foco no meio) e `restored` (o foreground anterior voltou).
+
+```text
+{"ok":false,"cmd":"key","data":{"error":"combo: ativacao falhou (alvo=... foreground=...)","focus":{...}}}
+{"ok":false,"cmd":"key","data":{"error":"combo: foco perdido durante o envio (alvo=... foreground=...)"}}
+{"ok":false,"cmd":"key","data":{"error":"--activate exige --mode combo"}}     exit 2
+```
+
+**Limite:** o Windows pode negar a ativação mesmo com tudo certo, e a ativação
+não atravessa desktop. `--activate` **tenta e reporta**; não garante. Sem a
+flag, o comportamento e o recibo são os de 1.7 (`focus.activate:false`). Em
+workflow `.wh`, o passo `key` aceita `"activate": true`.
+
 `X12` (e não `12X`) mostra que as setas moveram o cursor de verdade.
 
 ### `mouse` — eventos de mouse no handle

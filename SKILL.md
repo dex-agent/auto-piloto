@@ -1,6 +1,6 @@
 ---
 name: auto-piloto
-description: "Owner do conhecimento de automação de UI Win32 por handles via CLI DriveAutoTeste 1.7 (bin/DriveAutoTeste.exe incluído nesta skill): localizar janelas e handles (find --hwnd 0 = todas as janelas abertas, busca por contém, filtro de visibilidade, parentclass), clicar (BM_CLICK), ler/escrever textos, teclado/mouse/paste/print por mensagem e workflows .wh autocontidos (prompt + vars defaults + params posicionais + steps com asserts, incluindo assert-empty que prova envio) reutilizáveis — sem escrever driver novo por sistema. Regra de ouro: nunca declarar impossível automatizar UI Win32."
+description: "Owner do conhecimento de automação de UI Win32 por handles via CLI DriveAutoTeste 1.7.2 (bin/DriveAutoTeste.exe incluído nesta skill): localizar janelas e handles (find --hwnd 0 = todas as janelas abertas, busca por contém, filtro de visibilidade, parentclass), clicar (BM_CLICK), ler/escrever textos, teclado/mouse/paste/print por mensagem, atalhos com ativação opcional do alvo (key --mode combo --activate) e workflows .wh autocontidos (prompt + vars defaults + params posicionais + steps com asserts, incluindo assert-empty que prova envio) reutilizáveis — sem escrever driver novo por sistema. Regra de ouro: nunca declarar impossível automatizar UI Win32."
 metadata:
   systemone: ""
 ---
@@ -11,7 +11,7 @@ Alias humano e de chamada: `$auto-piloto` / `Auto Piloto`. **Alias legado:**
 `drive-autoteste`.
 
 Skill **owner do conhecimento** de automação de UI Win32 por handles. A
-ferramenta é o CLI `bin/DriveAutoTeste.exe` 1.7, **incluído nesta skill**
+ferramenta é o CLI `bin/DriveAutoTeste.exe` 1.7.2, **incluído nesta skill**
 (compilado com Delphi 13, dcc32 `-Q -B`); esta skill domina COMO usar e COMO
 criar workflows. Referência completa: `docs/USAGE.md` (exemplos ilustrativos). Exemplos prontos: `examples/*.wh`.
 
@@ -61,9 +61,11 @@ DriveAutoTeste [--json] <comando> [flags]
   click  (--hwnd N | --pid N --caption S)        BM_CLICK
   text   (--hwnd N | --pid N [--class C])        le texto (WM_GETTEXT)
   settext --hwnd N --value S                     escreve texto
-  key    (--hwnd N | --pid N --caption S) --keys k1,k2,.. [--mode press|raw|down|up|combo]
+  key    (--hwnd N | --pid N --caption S) --keys k1,k2,.. [--mode press|raw|down|up|combo] [--activate]
                                                 teclas: enter esc tab setas f1-12 a-z 0-9 #vk; combo (1.7):
                                                 ctrl+shift+v etc via SendInput com gate de foco (EXIGE foreground)
+                                                --activate (1.7.2, so com combo): ativa o alvo (trava de
+                                                foreground do Windows) e restaura o foco ao fim; recibo focus
   mouse  (--hwnd N | --pid N --caption S) [--action move|down|up|left|right|dclick] [--x N --y N]
   paste  (--hwnd N | --pid N --caption S)       cola clipboard (WM_PASTE)
   close  --pid N                                 encerra o processo
