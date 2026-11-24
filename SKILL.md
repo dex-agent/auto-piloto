@@ -1,6 +1,6 @@
 ---
 name: auto-piloto
-description: "Owner do conhecimento de automação de UI Win32 por handles via CLI DriveAutoTeste 1.7.2 (bin/DriveAutoTeste.exe incluído nesta skill): localizar janelas e handles (find --hwnd 0 = todas as janelas abertas, busca por contém, filtro de visibilidade, parentclass), clicar (BM_CLICK), ler/escrever textos, teclado/mouse/paste/print por mensagem, atalhos com ativação opcional do alvo (key --mode combo --activate) e workflows .wh autocontidos (prompt + vars defaults + params posicionais + steps com asserts, incluindo assert-empty que prova envio) reutilizáveis — sem escrever driver novo por sistema. Regra de ouro: nunca declarar impossível automatizar UI Win32."
+description: "Owner do conhecimento de automação de UI Win32 por handles via CLI DriveAutoTeste 1.7.3 (bin/DriveAutoTeste.exe incluído nesta skill): localizar janelas e handles (find --hwnd 0 = todas as janelas abertas, busca por contém, filtro de visibilidade, parentclass), clicar (BM_CLICK), ler/escrever textos, teclado/mouse/paste/print por mensagem, atalhos com ativação opcional do alvo (key --mode combo --activate) e workflows .wh autocontidos (prompt + vars defaults + params posicionais + steps com asserts, incluindo assert-empty que prova envio) reutilizáveis — sem escrever driver novo por sistema. Regra de ouro: nunca declarar impossível automatizar UI Win32."
 metadata:
   systemone: ""
 ---
@@ -11,7 +11,7 @@ Alias humano e de chamada: `$auto-piloto` / `Auto Piloto`. **Alias legado:**
 `drive-autoteste`.
 
 Skill **owner do conhecimento** de automação de UI Win32 por handles. A
-ferramenta é o CLI `bin/DriveAutoTeste.exe` 1.7.2, **incluído nesta skill**
+ferramenta é o CLI `bin/DriveAutoTeste.exe` 1.7.3, **incluído nesta skill**
 (compilado com Delphi 13, dcc32 `-Q -B`); esta skill domina COMO usar e COMO
 criar workflows. Referência completa: `docs/USAGE.md` (exemplos ilustrativos). Exemplos prontos: `examples/*.wh`.
 
