@@ -9,7 +9,7 @@ CLI de automação de UI Win32 por handles: enumera janelas e controles
 > e nomes de janela são inventados. Rode os comandos na sua máquina para ver
 > os valores reais.
 
-Versão do binário neste pacote: **1.7.3** (`bin\DriveAutoTeste.exe`).
+Versão do binário neste pacote: **1.7.4** (`bin\DriveAutoTeste.exe`).
 
 > **Windows:** os exemplos escrevem `./DriveAutoTeste.exe` (notação de shell
 > Unix). No Prompt de Comando, entre na pasta instalada e use a barra
@@ -29,7 +29,7 @@ lista estruturada de comandos e flags (1 linha parseável):
 
 ```text
 $ ./DriveAutoTeste.exe help
-DriveAutoTeste 1.7.3 — automacao de UI Win32 por handles
+DriveAutoTeste 1.7.4 — automacao de UI Win32 por handles
 uso: DriveAutoTeste [--json] <comando> [flags]
 comandos:
   run    --exe <path> [--dir <workdir>]           sobe o app e imprime pid
