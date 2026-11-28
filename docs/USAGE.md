@@ -9,7 +9,7 @@ CLI de automação de UI Win32 por handles: enumera janelas e controles
 > e nomes de janela são inventados. Rode os comandos na sua máquina para ver
 > os valores reais.
 
-Versão do binário neste pacote: **1.7.5** (`bin\DriveAutoTeste.exe`).
+Versão do binário neste pacote: **1.9.0** (`bin\DriveAutoTeste.exe`).
 
 > **Windows:** os exemplos escrevem `./DriveAutoTeste.exe` (notação de shell
 > Unix). No Prompt de Comando, entre na pasta instalada e use a barra
@@ -28,20 +28,34 @@ Versão do binário neste pacote: **1.7.5** (`bin\DriveAutoTeste.exe`).
 lista estruturada de comandos e flags (1 linha parseável):
 
 ```text
-$ ./DriveAutoTeste.exe help
-DriveAutoTeste 1.7.5 — automacao de UI Win32 por handles
+$ ./bin\DriveAutoTeste.exe help
+DriveAutoTeste 1.9.0 — automacao de UI Win32 por handles (casa, 2026-10-01; combo 2026-10-14; --activate 2026-11-24; roda e arrasto 2026-11-24; wait por condicao + diagnostico de falha 2026-11-25; probe 2026-11-25)
 uso: DriveAutoTeste [--json] <comando> [flags]
 comandos:
   run    --exe <path> [--dir <workdir>]           sobe o app e imprime pid
   find   (--pid N | --hwnd N | --hwnd 0) [--class C] [--caption S] [--caption-contains S]
-                                                [--vis all|visible|invisible] [--titled]
+                                                [--vis all|visible|invisible]
                                                 descendentes da raiz; --hwnd 0 = janelas abertas
-  wait   --pid N --caption S [--class C] [--timeout ms]
+  wait   (--hwnd N | --pid N [--class C] [--caption S]) [--until exists|enabled|text|gone]
+                                                [--text S] [--timeout ms] — enabled = o controle E
+                                                todos os ancestrais ate a raiz habilitados (filho
+                                                de janela desabilitada e implicitamente desabilitado
+                                                — doc EnableWindow); text = igual a S ou mudou;
+                                                gone = sumiu (visto: gone_after_seen; nunca visto:
+                                                never_found) — timeout traz until/elapsed_ms/seen/
+                                                attempts/last; --until invalido = exit 2
   click  (--hwnd N | --pid N --caption S)        BM_CLICK
   text   (--hwnd N | --pid N [--class C])        le texto (WM_GETTEXT)
   settext --hwnd N --value S                     escreve texto
-  clear  --hwnd N                                limpa o campo (len=0)
+  clear  --hwnd N                                limpa o campo (len=0 provado)
   key    (--hwnd N | --pid N --caption S) --keys k1,k2,.. [--mode press|raw|down|up|posted|combo]
+                                                teclas: enter esc tab setas f1-12 a-z 0-9 #vk ctrl alt shift win
+                                                combo: keys "ctrl+shift+v" (+ = combo; , = varias; +
+                                                literal = #BB). SendInput com foreground; aborta se
+                                                o foco divergir da janela raiz alvo (erro nomeado)
+                                                --activate (so com --mode combo): ativa o alvo
+                                                (AttachThreadInput), envia e restaura o foco anterior
+                                                --sequence|--repeat N|--delay-ms N|--dry-run (1.7.3)
   mouse  (--hwnd N | --pid N --caption S) [--action move|down|up|left|right|dclick] [--x N --y N]
                                                 eventos de mouse no handle (default: left no centro)
                                                 [--action wheel --direction up|down|left|right --amount N]
@@ -49,12 +63,18 @@ comandos:
                                                 x/y no client do alvo (ou da tela com --coords screen)
                                                 --dry-run mostra alvo e plano; --verify compara o print antes/depois
   paste  (--hwnd N | --pid N --caption S)       cola clipboard (WM_PASTE)
+  probe  (--hwnd N | --pid N [--caption S] [--class C]) UMA condicao:
+                                                --text-contains S (case-insensitive, literal) | --process-alive (--pid) | --file-exists P
+                                                --timeout ms (default 0 = disparo unico; >0 repolla 200ms)
+                                                modo humano imprime SO pronto/esperando (contrato do vigia);
+                                                --json traz condicao/satisfeita/observado; exit 0/1/2
   close  --pid N                                 encerra o processo
   sleep  --ms N                                  pausa
   shot   --hwnd N --out f.png [--locate] [--color yellow|red] [--format png|bmp]
+                                                print do handle; --locate = janela raiz + retangulo
   wh     --file <x.wh>                           playbook do workflow (campo prompt)
-  play   --file <x.wh> [--var k=v]... [posicionais]
-  help | schema
+  play   --file <x.wh> [--var k=v]...            workflow JSON com asserts
+  help | schema                                  ajuda (schema = JSON)
 flag global: --json  saida estruturada {"ok":..,"cmd":..,"data":..}
 ```
 

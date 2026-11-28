@@ -1,5 +1,8 @@
 # auto-piloto
 
+**Versão do CLI neste pacote: 1.9.0** (16 comandos, incluindo `wait` por
+condição e o sensor `probe` para vigias).
+
 Automação de UI Win32 por handles, sem escrever driver novo por sistema. Este
 pacote junta a **skill `auto-piloto`** (o conhecimento de uso) e o
 **CLI `DriveAutoTeste.exe`** (a ferramenta), prontos para instalar com um

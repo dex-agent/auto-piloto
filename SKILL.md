@@ -1,6 +1,6 @@
 ---
 name: auto-piloto
-description: "Owner do conhecimento de automação de UI Win32 por handles via CLI DriveAutoTeste 1.7.5 (bin/DriveAutoTeste.exe incluído nesta skill): localizar janelas e handles (find --hwnd 0 = todas as janelas abertas, busca por contém, filtro de visibilidade, parentclass, popups), clicar (BM_CLICK), ler/escrever textos, teclado/mouse/paste/print por mensagem (mouse com roda e arrasto, sem roubar foco), atalhos com ativação opcional do alvo (key --mode combo --activate) e workflows .wh autocontidos (prompt + vars defaults + params posicionais + steps com asserts, incluindo assert-empty que prova envio) reutilizáveis — sem escrever driver novo por sistema. Regra de ouro: nunca declarar impossível automatizar UI Win32."
+description: "Owner do conhecimento de automação de UI Win32 por handles via CLI DriveAutoTeste 1.9.0 (bin/DriveAutoTeste.exe incluído nesta skill): localizar janelas e handles (find --hwnd 0 = todas as janelas abertas, busca por contém, filtro de visibilidade, parentclass, popups), clicar (BM_CLICK), ler/escrever textos, teclado/mouse/paste/print por mensagem (mouse com roda e arrasto, sem roubar foco), atalhos com ativação opcional do alvo (key --mode combo --activate), espera por condição (wait --until exists|enabled|text|gone), sensor de condição para vigias (probe: stdout de uma palavra) e workflows .wh autocontidos (prompt + vars defaults + params posicionais + steps com asserts, incluindo assert-empty que prova envio) reutilizáveis — sem escrever driver novo por sistema. Regra de ouro: nunca declarar impossível automatizar UI Win32."
 metadata:
   systemone: ""
 ---
@@ -11,7 +11,7 @@ Alias humano e de chamada: `$auto-piloto` / `Auto Piloto`. **Alias legado:**
 `drive-autoteste`.
 
 Skill **owner do conhecimento** de automação de UI Win32 por handles. A
-ferramenta é o CLI `bin/DriveAutoTeste.exe` 1.7.5, **incluído nesta skill**
+ferramenta é o CLI `bin/DriveAutoTeste.exe` 1.9.0, **incluído nesta skill**
 (compilado com Delphi 13, dcc32 `-Q -B`); esta skill domina COMO usar e COMO
 criar workflows. Referência completa: `docs/USAGE.md` (exemplos ilustrativos). Exemplos prontos: `examples/*.wh`.
 
@@ -55,29 +55,38 @@ handles existem após o `CreateForm`.
 DriveAutoTeste [--json] <comando> [flags]
   run    --exe <path> [--dir <workdir>]           sobe o app e imprime pid
   find   (--pid N | --hwnd N | --hwnd 0) [--class C] [--caption S] [--caption-contains S]
-                                                [--vis all|visible|invisible] [--titled]
-                                                descendentes da raiz; --hwnd 0 = janelas abertas
-  wait   --pid N --caption S [--class C] [--timeout ms]
+                                                [--vis all|visible|invisible] [--titled] [--popups]
+                                                descendentes da raiz; --hwnd 0 = janelas abertas;
+                                                --popups = popups de menu do processo (1.7.3)
+  wait   (--hwnd N | --pid N) [--class C] [--caption S] [--until exists|enabled|text|gone]
+                                                [--text S] [--timeout ms]    espera existir ou
+                                                atingir o estado do controle (1.8.0)
   click  (--hwnd N | --pid N --caption S)        BM_CLICK
   text   (--hwnd N | --pid N [--class C])        le texto (WM_GETTEXT)
   settext --hwnd N --value S                     escreve texto
-  key    (--hwnd N | --pid N --caption S) --keys k1,k2,.. [--mode press|raw|down|up|combo] [--activate]
+  key    (--hwnd N | --pid N --caption S) --keys k1,k2,.. [--mode press|raw|down|up|posted|combo]
+                                                [--activate] [--sequence] [--repeat N] [--delay-ms N] [--dry-run]
                                                 teclas: enter esc tab setas f1-12 a-z 0-9 #vk; combo (1.7):
                                                 ctrl+shift+v etc via SendInput com gate de foco (EXIGE foreground)
                                                 --activate (1.7.2, so com combo): ativa o alvo (trava de
                                                 foreground do Windows) e restaura o foco ao fim; recibo focus
-  mouse  (--hwnd N | --pid N --caption S) [--action move|down|up|left|right|dclick] [--x N --y N]
-                                                [--action wheel --direction up|down|left|right --amount N] (1.7.5: 1 mensagem por entalhe)
-                                                [--action drag --to-x N --to-y N --from-x N --from-y N --button left|right]
-                                                x/y no client do alvo (ou da tela com --coords screen); --dry-run, --verify
+  mouse  (--hwnd N | --pid N --caption S) [--action move|down|up|left|right|dclick|wheel|drag] [--x N --y N]
+                                                [--direction up|down|left|right] [--amount N] (1.7.5: 1 mensagem por entalhe)
+                                                [--to-x N --to-y N] [--from-x N --from-y N] [--button left|right]
+                                                [--coords local|screen] [--dry-run] [--verify]
+  probe  (--hwnd N | --pid N [--class C] [--caption S])  alvo dispensado em --file-exists
+         (--text-contains S | --process-alive | --file-exists P) [--timeout ms]
+                                                sensor do vigia (1.9.0): imprime
+                                                pronto (exit 0) ou esperando (exit 1)
   paste  (--hwnd N | --pid N --caption S)       cola clipboard (WM_PASTE)
   close  --pid N                                 encerra o processo
   sleep  --ms N                                  pausa
-  shot   --hwnd N --out f.png [--locate] [--color yellow|red] [--format png|bmp]
+  shot   (--hwnd N | --pid N [--class C] [--caption S]) --out f.png [--locate] [--include-popups]
+                                                [--color yellow|red] [--format png|bmp]
   wh     --file <x.wh>                           playbook do workflow (campo prompt)
   play   --file <x.wh> [--var k=v]... [posicionais]  workflow JSON com asserts; posicionais
                                                 na ordem do bloco params do .wh (1.6)
-  help | schema                                  ajuda (schema = JSON, 14 comandos)
+  help | schema                                  ajuda (schema = JSON, 16 comandos)
 ```
 
 ### find em detalhe (1.3+)
@@ -98,6 +107,23 @@ DriveAutoTeste [--json] <comando> [flags]
 - `--titled` (1.6, opt-in) = descarta caption vazia (controles-label).
   Default do find NÃO muda.
 
+### wait por condição e probe (1.8.0/1.9.0)
+
+- `wait --until enabled|text|gone [--text S] [--timeout ms]` espera o
+  controle atingir o estado: recibo com `until/elapsed/seen/last`;
+  `gone` depois de visto devolve `gone_after_seen`; nunca visto, `never_found`.
+  Alvo com dois candidatos falha antes de agir (`ambiguous_target`,
+  com `firstMatch:true` mantendo o 1º).
+- `probe` avalia **uma** condição (`--text-contains` case-insensitive por
+  dobra Unicode e literal, `--process-alive`, `--file-exists`) e serve de
+  sensor para vigias: sem `--json` o stdout é UMA palavra — `pronto`
+  (exit 0) ou `esperando` (exit 1, inclusive timeout); erro de uso sai no
+  stderr com stdout vazio (exit 2). `--text-regex` não existe.
+- `play --json` com passo falho traz `failure` do 1º passo
+  (step/action/expected/observed/foreground/duration/reason).
+- O `--json` é ASCII puro desde a 1.8.0: acento sai como `\uXXXX` e
+  decodifica em UTF-8 (o gotcha do CP1252 abaixo vale só para exes antigos).
+
 ## Workflows .wh (reuso — 1 arquivo por regressão, zero código novo)
 
 **Workflows autocontidos:** quando te entregarem só o nome de um `.wh` +
@@ -115,7 +141,7 @@ sobrescreve. Superfície CLI: `wh --file <arquivo>.wh` imprime o playbook
 JSON: `{name, prompt, vars?, params?, steps:[{do, ...params}]}`. Steps:
 `run(exe,dir,save)`, **`assert-empty(hwnd|pid+class, 1.6: PASS=vazio nomeia
 hwnd; FAIL nomeia conteúdo; hwnd morto=FAIL sem falso verde)`**,
-`wait(pid,class,caption,timeoutMs)`, `click(hwnd|pid+caption)`,
+`wait(pid|hwnd,class,caption,until,text,timeoutMs)`, `click(hwnd|pid+caption,firstMatch)`,
 `settext(hwnd|pid+caption,value)`, `text(pid,class,save,out)`,
 `key(pid/hwnd+class/caption,keys,mode)`,
 `mouse(pid/hwnd+localização,x,y,action; 1.7.5: wheel com direction/amount e drag
@@ -130,8 +156,9 @@ sucesso fecha os PIDs no `finally` (1.6) e sai 0
 (`WORKFLOW=PASS pass=N fail=0`). Workflow que envia algo deve TERMINAR com
 `assert-empty` do campo de origem: WORKFLOW=PASS = envio provado.
 
-Exemplos em `examples/` (ambos rodam em qualquer Windows e fecham o notepad
-ao terminar): `key-notepad.wh` (7/7, teclado por eventos + asserts de texto) e
+Exemplos em `examples/` (rodam em qualquer Windows e fecham o notepad
+ao terminar): `key-notepad.wh` (7/7, teclado por eventos + asserts de texto),
+`mouse-wheel-notepad.wh` (10/10, roda e arrasto no Edit) e
 `shot-notepad.wh` (7/7, `settext` + print com retângulo localizador + assert
 de arquivo). Use-os como molde: troque `exe`, `class` e `caption` pelos do
 seu app. Os valores de pid/hwnd mudam a cada execução — descubra com `find`,
@@ -145,8 +172,9 @@ nunca reutilize de uma sessão anterior.
 - `TJSONArray.Items[I]` (não `.Objects`); eventos do .dfm exigem handler em
   `published`; comentário `{ }` Pascal **não aninha** (nunca `{...}` dentro).
 - `--json` do `play` silencia logs de step (saída = linha única parseável).
-- `--json` com caption acentuada sai no console em CP1252: em python,
-  `sys.stdin.buffer.read().decode('cp1252')` antes do `json.loads`.
+- `--json` sai em ASCII puro desde a 1.8.0 (`\uXXXX`): em python,
+  `json.loads(saida)` em UTF-8 decodifica direto. Saída HUMANA de caption
+  acentuada no console é CP1252 (decode `cp1252`).
 - `--hwnd` com o HWND **numérico** do desktop (`GetDesktopWindow`) devolve 0
   itens — para todas as janelas use `--hwnd 0`.
 - Vírgula é **separador**, nunca tecla: literal é `#188` (VK_OEM_COMMA,
